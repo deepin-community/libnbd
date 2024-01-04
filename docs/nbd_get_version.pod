@@ -1,0 +1,92 @@
+=head1 NAME
+
+nbd_get_version - return the version of the library
+
+=head1 SYNOPSIS
+
+ #include <libnbd.h>
+
+ const char * nbd_get_version (
+                struct nbd_handle *h
+              );
+
+=head1 DESCRIPTION
+
+Return the version of libnbd.  This is returned as a string
+in the form C<"major.minor.release"> where each of major, minor
+and release is a small positive integer.  For example:
+
+     minor
+       ↓
+    "1.0.3"
+     ↑   ↑
+ major   release
+
+=over 4
+
+=item major = 0
+
+The major number was C<0> for the early experimental versions of
+libnbd where we still had an unstable API.
+
+=item major = 1
+
+The major number is C<1> for the versions of libnbd with a
+long-term stable API and ABI.  It is not anticipated that
+major will be any number other than C<1>.
+
+=item minor = 0, 2, ... (even)
+
+The minor number is even for stable releases.
+
+=item minor = 1, 3, ... (odd)
+
+The minor number is odd for development versions.  Note that
+new APIs added in a development version remain experimental
+and subject to change in that branch until they appear in a stable
+release.
+
+=item release
+
+The release number is incremented for each release along a particular
+branch.
+
+=back
+
+=head1 RETURN VALUE
+
+This call returns a statically allocated string, valid for the
+lifetime of the process or until libnbd is unloaded by
+L<dlclose(3)>.  You B<must not> try to free the string.
+
+=head1 ERRORS
+
+This function does not fail.
+
+The following parameters must not be NULL: C<h>.
+For more information see L<libnbd(3)/Non-NULL parameters>.
+
+=head1 VERSION
+
+This function first appeared in libnbd 1.0.
+
+If you need to test if this function is available at compile time
+check if the following macro is defined:
+
+ #define LIBNBD_HAVE_NBD_GET_VERSION 1
+
+=head1 SEE ALSO
+
+L<nbd_create(3)>,
+L<nbd_get_package_name(3)>,
+L<libnbd(3)>.
+
+=head1 AUTHORS
+
+Eric Blake
+
+Richard W.M. Jones
+
+=head1 COPYRIGHT
+
+Copyright Red Hat

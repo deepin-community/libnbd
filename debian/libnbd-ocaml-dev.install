@@ -1,0 +1,4 @@
+usr/lib/ocaml/nbd/META
+usr/lib/ocaml/nbd/*.a
+usr/lib/ocaml/nbd/*.cm*
+usr/lib/ocaml/nbd/*.ml*

@@ -1,0 +1,56 @@
+=head1 NAME
+
+nbd_clear_debug_callback - clear the debug callback
+
+=head1 SYNOPSIS
+
+ #include <libnbd.h>
+
+ int nbd_clear_debug_callback (
+       struct nbd_handle *h
+     );
+
+=head1 DESCRIPTION
+
+Remove the debug callback if one was previously associated
+with the handle (with L<nbd_set_debug_callback(3)>).  If no
+callback was associated this does nothing.
+
+=head1 RETURN VALUE
+
+If the call is successful the function returns C<0>.
+
+=head1 ERRORS
+
+On error C<-1> is returned.
+
+Refer to L<libnbd(3)/ERROR HANDLING>
+for how to get further details of the error.
+
+The following parameters must not be NULL: C<h>.
+For more information see L<libnbd(3)/Non-NULL parameters>.
+
+=head1 VERSION
+
+This function first appeared in libnbd 1.0.
+
+If you need to test if this function is available at compile time
+check if the following macro is defined:
+
+ #define LIBNBD_HAVE_NBD_CLEAR_DEBUG_CALLBACK 1
+
+=head1 SEE ALSO
+
+L<nbd_create(3)>,
+L<nbd_set_debug_callback(3)>,
+L<libnbd(3)>.
+
+=head1 AUTHORS
+
+Eric Blake
+
+Richard W.M. Jones
+
+=head1 COPYRIGHT
+
+Copyright Red Hat

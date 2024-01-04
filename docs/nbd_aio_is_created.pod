@@ -1,0 +1,54 @@
+=head1 NAME
+
+nbd_aio_is_created - check if the connection has just been created
+
+=head1 SYNOPSIS
+
+ #include <libnbd.h>
+
+ int nbd_aio_is_created (
+       struct nbd_handle *h
+     );
+
+=head1 DESCRIPTION
+
+Return true if this connection has just been created.  This
+is the state before the handle has started connecting to a
+server.  In this state the handle can start to be connected
+by calling functions such as L<nbd_aio_connect(3)>.
+
+=head1 RETURN VALUE
+
+This call returns a boolean value.
+
+=head1 ERRORS
+
+This function does not fail.
+
+The following parameters must not be NULL: C<h>.
+For more information see L<libnbd(3)/Non-NULL parameters>.
+
+=head1 VERSION
+
+This function first appeared in libnbd 1.0.
+
+If you need to test if this function is available at compile time
+check if the following macro is defined:
+
+ #define LIBNBD_HAVE_NBD_AIO_IS_CREATED 1
+
+=head1 SEE ALSO
+
+L<nbd_aio_connect(3)>,
+L<nbd_create(3)>,
+L<libnbd(3)>.
+
+=head1 AUTHORS
+
+Eric Blake
+
+Richard W.M. Jones
+
+=head1 COPYRIGHT
+
+Copyright Red Hat
