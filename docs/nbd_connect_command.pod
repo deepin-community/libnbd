@@ -1,0 +1,187 @@
+=head1 NAME
+
+nbd_connect_command - connect to NBD server command
+
+=head1 SYNOPSIS
+
+ #include <libnbd.h>
+
+ int nbd_connect_command (
+       struct nbd_handle *h, char **argv
+     );
+
+=head1 DESCRIPTION
+
+Run the command as a subprocess and connect to it over
+stdin/stdout.  This is for use with NBD servers which can
+behave like inetd clients, such as L<nbdkit(1)> using
+the I<-s>/I<--single> flag, and L<nbd-server(1)> with
+port number set to 0.
+
+To run L<qemu-nbd(1)>, use
+L<nbd_connect_systemd_socket_activation(3)> instead.
+
+=head2 Subprocess
+
+Libnbd will fork the C<argv> command and pass the NBD socket
+to it using file descriptors 0 and 1 (stdin/stdout):
+
+ ┌─────────┬─────────┐    ┌────────────────┐
+ │ program │ libnbd  │    │   NBD server   │
+ │         │         │    │       (argv)   │
+ │         │ socket ╍╍╍╍╍╍╍╍▶ stdin/stdout │
+ └─────────┴─────────┘    └────────────────┘
+
+When the NBD handle is closed the server subprocess
+is killed.
+
+
+This call returns when the connection has been made.  By default,
+this proceeds all the way to transmission phase, but
+L<nbd_set_opt_mode(3)> can be used for manual control over
+option negotiation performed before transmission phase.
+
+=head1 RETURN VALUE
+
+If the call is successful the function returns C<0>.
+
+=head1 ERRORS
+
+On error C<-1> is returned.
+
+Refer to L<libnbd(3)/ERROR HANDLING>
+for how to get further details of the error.
+
+The following parameters must not be NULL: C<h>, C<argv>.
+For more information see L<libnbd(3)/Non-NULL parameters>.
+
+=head1 HANDLE STATE
+
+nbd_connect_command
+can be called when the handle is in the following state:
+
+ ┌─────────────────────────────────────┬─────────────────────────┐
+ │ Handle created, before connecting   │ ✅ allowed              │
+ │ Connecting                          │ ❌ error                │
+ │ Connecting & handshaking (opt_mode) │ ❌ error                │
+ │ Connected to the server             │ ❌ error                │
+ │ Connection shut down                │ ❌ error                │
+ │ Handle dead                         │ ❌ error                │
+ └─────────────────────────────────────┴─────────────────────────┘
+
+=head1 VERSION
+
+This function first appeared in libnbd 1.0.
+
+If you need to test if this function is available at compile time
+check if the following macro is defined:
+
+ #define LIBNBD_HAVE_NBD_CONNECT_COMMAND 1
+
+=head1 EXAMPLE
+
+This example is also available as F<examples/connect-command.c>
+in the libnbd source code.
+
+ /* This example shows how to run an NBD server
+  * (nbdkit) as a subprocess of libnbd.
+  */
+
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+
+ #include <libnbd.h>
+
+ int
+ main (int argc, char *argv[])
+ {
+   struct nbd_handle *nbd;
+   char wbuf[512], rbuf[512];
+   size_t i;
+
+   /* Create the libnbd handle. */
+   nbd = nbd_create ();
+   if (nbd == NULL) {
+     fprintf (stderr, "%s\n", nbd_get_error ());
+     exit (EXIT_FAILURE);
+   }
+
+   /* Run nbdkit as a subprocess. */
+   char *args[] = {
+     "nbdkit",
+
+     /* You must use ‘-s’ (which tells nbdkit to serve
+      * a single connection on stdin/stdout).
+      */
+     "-s",
+
+     /* It is recommended to use ‘--exit-with-parent’
+      * to ensure nbdkit is always cleaned up even
+      * if the main program crashes.
+      */
+     "--exit-with-parent",
+
+     /* Use this to enable nbdkit debugging. */
+     "-v",
+
+     /* The nbdkit plugin name - this is a RAM disk. */
+     "memory", "size=1M",
+
+     /* Use NULL to terminate the arg list. */
+     NULL
+   };
+   if (nbd_connect_command (nbd, args) == -1) {
+     fprintf (stderr, "%s\n", nbd_get_error ());
+     exit (EXIT_FAILURE);
+   }
+
+   /* Write some random data to the first sector. */
+   for (i = 0; i < sizeof wbuf; ++i)
+     wbuf[i] = i % 13;
+   if (nbd_pwrite (nbd, wbuf, sizeof wbuf, 0, 0) == -1) {
+     fprintf (stderr, "%s\n", nbd_get_error ());
+     exit (EXIT_FAILURE);
+   }
+
+   /* Read the first sector back. */
+   if (nbd_pread (nbd, rbuf, sizeof rbuf, 0, 0) == -1) {
+     fprintf (stderr, "%s\n", nbd_get_error ());
+     exit (EXIT_FAILURE);
+   }
+
+   /* Close the libnbd handle. */
+   nbd_close (nbd);
+
+   /* What was read must be exactly the same as what
+    * was written.
+    */
+   if (memcmp (rbuf, wbuf, sizeof rbuf) != 0) {
+     fprintf (stderr, "FAILED: "
+              "read data did not match written data\n");
+     exit (EXIT_FAILURE);
+   }
+
+   exit (EXIT_SUCCESS);
+ }
+
+=head1 SEE ALSO
+
+L<nbd_aio_connect_command(3)>,
+L<nbd_connect_systemd_socket_activation(3)>,
+L<nbd_create(3)>,
+L<nbd_get_subprocess_pid(3)>,
+L<nbd_kill_subprocess(3)>,
+L<nbd_set_opt_mode(3)>,
+L<libnbd(3)>,
+L<nbdkit(1)>.
+
+=head1 AUTHORS
+
+Eric Blake
+
+Richard W.M. Jones
+
+=head1 COPYRIGHT
+
+Copyright Red Hat

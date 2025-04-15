@@ -1,0 +1,104 @@
+=head1 NAME
+
+nbd_set_handshake_flags - control use of handshake flags
+
+=head1 SYNOPSIS
+
+ #include <libnbd.h>
+
+ int nbd_set_handshake_flags (
+       struct nbd_handle *h, uint32_t flags
+     );
+
+=head1 DESCRIPTION
+
+By default, libnbd tries to negotiate all possible handshake flags
+that are also supported by the server, since omitting a handshake
+flag can prevent the use of other functionality such as TLS encryption
+or structured replies.  However, for integration testing, it can be
+useful to reduce the set of flags supported by the client to test that
+a particular server can handle various clients that were compliant to
+older versions of the NBD specification.
+
+The C<flags> argument is a bitmask, including zero or more of the
+following handshake flags:
+
+=over 4
+
+=item C<LIBNBD_HANDSHAKE_FLAG_FIXED_NEWSTYLE> = 1
+
+The server gracefully handles unknown option requests from the
+client, rather than disconnecting.  Without this flag, a client
+cannot safely request to use extensions such as TLS encryption or
+structured replies, as the request may cause an older server to
+drop the connection.
+
+=item C<LIBNBD_HANDSHAKE_FLAG_NO_ZEROES> = 2
+
+If the client is forced to use C<NBD_OPT_EXPORT_NAME> instead of
+the preferred C<NBD_OPT_GO>, this flag allows the server to send
+fewer all-zero padding bytes over the connection.
+
+=back
+
+For convenience, the constant C<LIBNBD_HANDSHAKE_FLAG_MASK> is
+available to describe all flags supported by this build of libnbd.
+Future NBD extensions may add further flags, which in turn may
+be enabled by default in newer libnbd.  As such, when attempting
+to disable only one specific bit, it is wiser to first call
+L<nbd_get_handshake_flags(3)> and modify that value, rather than
+blindly setting a constant value.
+
+=head1 RETURN VALUE
+
+If the call is successful the function returns C<0>.
+
+=head1 ERRORS
+
+On error C<-1> is returned.
+
+Refer to L<libnbd(3)/ERROR HANDLING>
+for how to get further details of the error.
+
+The following parameters must not be NULL: C<h>.
+For more information see L<libnbd(3)/Non-NULL parameters>.
+
+=head1 HANDLE STATE
+
+nbd_set_handshake_flags
+can be called when the handle is in the following state:
+
+ ┌─────────────────────────────────────┬─────────────────────────┐
+ │ Handle created, before connecting   │ ✅ allowed              │
+ │ Connecting                          │ ❌ error                │
+ │ Connecting & handshaking (opt_mode) │ ❌ error                │
+ │ Connected to the server             │ ❌ error                │
+ │ Connection shut down                │ ❌ error                │
+ │ Handle dead                         │ ❌ error                │
+ └─────────────────────────────────────┴─────────────────────────┘
+
+=head1 VERSION
+
+This function first appeared in libnbd 1.2.
+
+If you need to test if this function is available at compile time
+check if the following macro is defined:
+
+ #define LIBNBD_HAVE_NBD_SET_HANDSHAKE_FLAGS 1
+
+=head1 SEE ALSO
+
+L<nbd_create(3)>,
+L<nbd_get_handshake_flags(3)>,
+L<nbd_set_request_structured_replies(3)>,
+L<libnbd(3)>.
+
+=head1 AUTHORS
+
+Eric Blake
+
+Richard W.M. Jones
+
+=head1 COPYRIGHT
+
+Copyright Red Hat

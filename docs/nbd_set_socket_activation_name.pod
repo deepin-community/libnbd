@@ -1,0 +1,82 @@
+=head1 NAME
+
+nbd_set_socket_activation_name - set the socket activation name
+
+=head1 SYNOPSIS
+
+ #include <libnbd.h>
+
+ int nbd_set_socket_activation_name (
+       struct nbd_handle *h, const char *socket_name
+     );
+
+=head1 DESCRIPTION
+
+When running an NBD server using
+L<nbd_connect_systemd_socket_activation(3)> you can optionally
+name the socket.  Call this function before connecting to the
+server.
+
+Some servers such as L<qemu-storage-daemon(1)>
+can use this information to associate the socket with a name
+used on the command line, but most servers will ignore it.
+The name is passed through the C<LISTEN_FDNAMES> environment
+variable.
+
+The parameter C<socket_name> can be a short alphanumeric string.
+If it is set to the empty string (also the default when the handle
+is created) then the name C<unknown> will be seen by the server.
+
+=head1 RETURN VALUE
+
+If the call is successful the function returns C<0>.
+
+=head1 ERRORS
+
+On error C<-1> is returned.
+
+Refer to L<libnbd(3)/ERROR HANDLING>
+for how to get further details of the error.
+
+The following parameters must not be NULL: C<h>, C<socket_name>.
+For more information see L<libnbd(3)/Non-NULL parameters>.
+
+=head1 HANDLE STATE
+
+nbd_set_socket_activation_name
+can be called when the handle is in the following state:
+
+ ┌─────────────────────────────────────┬─────────────────────────┐
+ │ Handle created, before connecting   │ ✅ allowed              │
+ │ Connecting                          │ ❌ error                │
+ │ Connecting & handshaking (opt_mode) │ ❌ error                │
+ │ Connected to the server             │ ❌ error                │
+ │ Connection shut down                │ ❌ error                │
+ │ Handle dead                         │ ❌ error                │
+ └─────────────────────────────────────┴─────────────────────────┘
+
+=head1 VERSION
+
+This function first appeared in libnbd 1.16.
+
+If you need to test if this function is available at compile time
+check if the following macro is defined:
+
+ #define LIBNBD_HAVE_NBD_SET_SOCKET_ACTIVATION_NAME 1
+
+=head1 SEE ALSO
+
+L<nbd_connect_systemd_socket_activation(3)>,
+L<nbd_create(3)>,
+L<nbd_get_socket_activation_name(3)>,
+L<libnbd(3)>.
+
+=head1 AUTHORS
+
+Eric Blake
+
+Richard W.M. Jones
+
+=head1 COPYRIGHT
+
+Copyright Red Hat

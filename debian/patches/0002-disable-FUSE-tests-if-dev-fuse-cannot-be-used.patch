@@ -1,0 +1,49 @@
+From: Hilko Bengen <bengen@debian.org>
+Date: Mon, 20 Jan 2020 16:34:59 +0100
+Subject: disable FUSE tests if /dev/fuse cannot be used
+
+---
+ fuse/test-file-mode.sh | 2 ++
+ fuse/test-nbdkit.sh    | 2 ++
+ fuse/test-qcow2.sh     | 2 ++
+ 3 files changed, 6 insertions(+)
+
+diff --git a/fuse/test-file-mode.sh b/fuse/test-file-mode.sh
+index 53ec78c..efa2a52 100755
+--- a/fuse/test-file-mode.sh
++++ b/fuse/test-file-mode.sh
+@@ -27,6 +27,8 @@ requires_fuse
+ requires $NBDKIT --exit-with-parent --version
+ requires $CMP --version
+ requires $DD --version
++requires test -w /dev/fuse
++requires test -e /etc/mtab
+ 
+ if ! test -r /dev/urandom; then
+     echo "$0: test skipped: /dev/urandom not readable"
+diff --git a/fuse/test-nbdkit.sh b/fuse/test-nbdkit.sh
+index 7e19310..1f05a53 100755
+--- a/fuse/test-nbdkit.sh
++++ b/fuse/test-nbdkit.sh
+@@ -27,6 +27,8 @@ requires_fuse
+ requires $NBDKIT --exit-with-parent --version
+ requires $CMP --version
+ requires $DD --version
++requires test -w /dev/fuse
++requires test -e /etc/mtab
+ 
+ if ! test -r /dev/urandom; then
+     echo "$0: test skipped: /dev/urandom not readable"
+diff --git a/fuse/test-qcow2.sh b/fuse/test-qcow2.sh
+index 3d25f2b..1a48a9e 100755
+--- a/fuse/test-qcow2.sh
++++ b/fuse/test-qcow2.sh
+@@ -29,6 +29,8 @@ requires $QEMU_NBD --version
+ requires qemu-img --version
+ requires $CMP --version
+ requires $DD --version
++requires test -w /dev/fuse
++requires test -e /etc/mtab
+ 
+ if ! test -r /dev/urandom; then
+     echo "$0: test skipped: /dev/urandom not readable"

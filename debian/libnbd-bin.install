@@ -1,0 +1,12 @@
+usr/bin/nbdcopy
+usr/bin/nbddump
+usr/bin/nbdfuse
+usr/bin/nbdinfo
+usr/share/man/man1/nbdcopy.1
+usr/share/man/man1/nbddump.1
+usr/share/man/man1/nbdfuse.1
+usr/share/man/man1/nbdinfo.1
+usr/share/bash-completion/completions/nbdcopy
+usr/share/bash-completion/completions/nbddump
+usr/share/bash-completion/completions/nbdfuse
+usr/share/bash-completion/completions/nbdinfo

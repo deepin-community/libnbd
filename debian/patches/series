@@ -1,0 +1,2 @@
+0001-Use-bash-for-nbdsh-wrapper.patch
+0002-disable-FUSE-tests-if-dev-fuse-cannot-be-used.patch
