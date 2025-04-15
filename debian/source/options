@@ -1,0 +1,5 @@
+extend-diff-ignore = "interop/requires[.]c$"
+extend-diff-ignore = "generator/generator-cache[.]v1$"
+extend-diff-ignore = "(bindings|generated|closures)[.].*$"
+extend-diff-ignore = "[.](html|1)$"
+extend-diff-ignore = "[.]depend$"

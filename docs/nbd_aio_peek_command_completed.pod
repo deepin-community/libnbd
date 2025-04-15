@@ -1,0 +1,59 @@
+=head1 NAME
+
+nbd_aio_peek_command_completed - check if any command has completed
+
+=head1 SYNOPSIS
+
+ #include <libnbd.h>
+
+ int64_t nbd_aio_peek_command_completed (
+           struct nbd_handle *h
+         );
+
+=head1 DESCRIPTION
+
+Return the unique positive 64 bit cookie of the first non-retired but
+completed command, C<0> if there are in-flight commands but none of
+them are awaiting retirement, or C<-1> on error including when there
+are no in-flight commands. Any cookie returned by this function must
+still be passed to L<nbd_aio_command_completed(3)> to actually retire
+the command and learn whether the command was successful.
+
+=head1 RETURN VALUE
+
+This call returns a 64 bit signed integer E<ge> C<0>.
+
+=head1 ERRORS
+
+On error C<-1> is returned.
+
+Refer to L<libnbd(3)/ERROR HANDLING>
+for how to get further details of the error.
+
+The following parameters must not be NULL: C<h>.
+For more information see L<libnbd(3)/Non-NULL parameters>.
+
+=head1 VERSION
+
+This function first appeared in libnbd 1.0.
+
+If you need to test if this function is available at compile time
+check if the following macro is defined:
+
+ #define LIBNBD_HAVE_NBD_AIO_PEEK_COMMAND_COMPLETED 1
+
+=head1 SEE ALSO
+
+L<nbd_aio_command_completed(3)>,
+L<nbd_create(3)>,
+L<libnbd(3)>.
+
+=head1 AUTHORS
+
+Eric Blake
+
+Richard W.M. Jones
+
+=head1 COPYRIGHT
+
+Copyright Red Hat

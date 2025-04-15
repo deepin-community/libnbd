@@ -1,0 +1,84 @@
+=head1 NAME
+
+nbd_aio_disconnect - disconnect from the NBD server
+
+=head1 SYNOPSIS
+
+ #include <libnbd.h>
+
+ int nbd_aio_disconnect (
+       struct nbd_handle *h, uint32_t flags
+     );
+
+=head1 DESCRIPTION
+
+Issue the disconnect command to the NBD server.  This is
+not a normal command because NBD servers are not obliged
+to send a reply.  Instead you should wait for
+L<nbd_aio_is_closed(3)> to become true on the connection.  Once this
+command is issued, you cannot issue any further commands.
+
+Although libnbd does not prevent you from issuing this command while
+still waiting on the replies to previous commands, the NBD protocol
+recommends that you wait until there are no other commands in flight
+(see L<nbd_aio_in_flight(3)>), to give the server a better chance at a
+clean shutdown.
+
+The C<flags> parameter must be C<0> for now (it exists for future NBD
+protocol extensions).  There is no direct synchronous counterpart;
+however, L<nbd_shutdown(3)> will call this function if appropriate.
+
+=head1 RETURN VALUE
+
+If the call is successful the function returns C<0>.
+
+=head1 ERRORS
+
+On error C<-1> is returned.
+
+Refer to L<libnbd(3)/ERROR HANDLING>
+for how to get further details of the error.
+
+The following parameters must not be NULL: C<h>.
+For more information see L<libnbd(3)/Non-NULL parameters>.
+
+=head1 HANDLE STATE
+
+nbd_aio_disconnect
+can be called when the handle is in the following state:
+
+ ┌─────────────────────────────────────┬─────────────────────────┐
+ │ Handle created, before connecting   │ ❌ error                │
+ │ Connecting                          │ ❌ error                │
+ │ Connecting & handshaking (opt_mode) │ ❌ error                │
+ │ Connected to the server             │ ✅ allowed              │
+ │ Connection shut down                │ ❌ error                │
+ │ Handle dead                         │ ❌ error                │
+ └─────────────────────────────────────┴─────────────────────────┘
+
+=head1 VERSION
+
+This function first appeared in libnbd 1.0.
+
+If you need to test if this function is available at compile time
+check if the following macro is defined:
+
+ #define LIBNBD_HAVE_NBD_AIO_DISCONNECT 1
+
+=head1 SEE ALSO
+
+L<nbd_aio_in_flight(3)>,
+L<nbd_aio_is_closed(3)>,
+L<nbd_create(3)>,
+L<nbd_shutdown(3)>,
+L<libnbd(3)>.
+
+=head1 AUTHORS
+
+Eric Blake
+
+Richard W.M. Jones
+
+=head1 COPYRIGHT
+
+Copyright Red Hat

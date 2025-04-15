@@ -1,0 +1,60 @@
+=head1 NAME
+
+nbd_supports_vsock - true if libnbd was compiled with support for
+AF_VSOCK
+
+=head1 SYNOPSIS
+
+ #include <libnbd.h>
+
+ int nbd_supports_vsock (
+       struct nbd_handle *h
+     );
+
+=head1 DESCRIPTION
+
+Returns true if libnbd was compiled with support for the C<AF_VSOCK>
+family of sockets, or false if not.
+
+Note that on the Linux operating system, this returns true if
+there is compile-time support, but you may still need runtime
+support for some aspects of AF_VSOCK usage; for example, use of
+C<VMADDR_CID_LOCAL> as the server name requires that the
+I<vsock_loopback> kernel module is loaded.
+
+=head1 RETURN VALUE
+
+This call returns a boolean value.
+
+=head1 ERRORS
+
+This function does not fail.
+
+The following parameters must not be NULL: C<h>.
+For more information see L<libnbd(3)/Non-NULL parameters>.
+
+=head1 VERSION
+
+This function first appeared in libnbd 1.16.
+
+If you need to test if this function is available at compile time
+check if the following macro is defined:
+
+ #define LIBNBD_HAVE_NBD_SUPPORTS_VSOCK 1
+
+=head1 SEE ALSO
+
+L<nbd_connect_uri(3)>,
+L<nbd_connect_vsock(3)>,
+L<nbd_create(3)>,
+L<libnbd(3)>.
+
+=head1 AUTHORS
+
+Eric Blake
+
+Richard W.M. Jones
+
+=head1 COPYRIGHT
+
+Copyright Red Hat

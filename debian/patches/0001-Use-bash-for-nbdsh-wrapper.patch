@@ -1,0 +1,18 @@
+From: Hilko Bengen <bengen@debian.org>
+Date: Fri, 15 Nov 2019 12:10:49 +0100
+Subject: Use bash for nbdsh wrapper
+
+---
+ sh/nbdsh.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/sh/nbdsh.in b/sh/nbdsh.in
+index c258d40..f7e7ca2 100644
+--- a/sh/nbdsh.in
++++ b/sh/nbdsh.in
+@@ -1,4 +1,4 @@
+-#!/bin/sh -
++#!/bin/bash -
+ # Copyright Red Hat
+ #
+ # @configure_input@

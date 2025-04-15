@@ -1,0 +1,86 @@
+=head1 NAME
+
+nbd_set_request_structured_replies - control use of structured replies
+
+=head1 SYNOPSIS
+
+ #include <libnbd.h>
+
+ int nbd_set_request_structured_replies (
+       struct nbd_handle *h, bool request
+     );
+
+=head1 DESCRIPTION
+
+By default, libnbd tries to negotiate structured replies with the
+server, as this protocol extension must be in use before
+L<nbd_can_meta_context(3)> or L<nbd_can_df(3)> can return true.  However,
+for integration testing, it can be useful to clear this flag
+rather than find a way to alter the server to fail the negotiation
+request.  It is also useful to set this to false prior to using
+L<nbd_set_opt_mode(3)> if it is desired to control when to send
+L<nbd_opt_structured_reply(3)> during negotiation.
+
+Note that setting this knob to false also disables any automatic
+request for extended headers.
+
+=head1 RETURN VALUE
+
+If the call is successful the function returns C<0>.
+
+=head1 ERRORS
+
+On error C<-1> is returned.
+
+Refer to L<libnbd(3)/ERROR HANDLING>
+for how to get further details of the error.
+
+The following parameters must not be NULL: C<h>.
+For more information see L<libnbd(3)/Non-NULL parameters>.
+
+=head1 HANDLE STATE
+
+nbd_set_request_structured_replies
+can be called when the handle is in the following state:
+
+ ┌─────────────────────────────────────┬─────────────────────────┐
+ │ Handle created, before connecting   │ ✅ allowed              │
+ │ Connecting                          │ ❌ error                │
+ │ Connecting & handshaking (opt_mode) │ ❌ error                │
+ │ Connected to the server             │ ❌ error                │
+ │ Connection shut down                │ ❌ error                │
+ │ Handle dead                         │ ❌ error                │
+ └─────────────────────────────────────┴─────────────────────────┘
+
+=head1 VERSION
+
+This function first appeared in libnbd 1.2.
+
+If you need to test if this function is available at compile time
+check if the following macro is defined:
+
+ #define LIBNBD_HAVE_NBD_SET_REQUEST_STRUCTURED_REPLIES 1
+
+=head1 SEE ALSO
+
+L<nbd_can_df(3)>,
+L<nbd_can_meta_context(3)>,
+L<nbd_create(3)>,
+L<nbd_get_request_structured_replies(3)>,
+L<nbd_get_structured_replies_negotiated(3)>,
+L<nbd_opt_structured_reply(3)>,
+L<nbd_set_handshake_flags(3)>,
+L<nbd_set_opt_mode(3)>,
+L<nbd_set_request_extended_headers(3)>,
+L<nbd_set_strict_mode(3)>,
+L<libnbd(3)>.
+
+=head1 AUTHORS
+
+Eric Blake
+
+Richard W.M. Jones
+
+=head1 COPYRIGHT
+
+Copyright Red Hat

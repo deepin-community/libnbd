@@ -1,0 +1,4 @@
+@OCamlStdlibDir@/nbd/META
+@OCamlStdlibDir@/nbd/*.a
+@OCamlStdlibDir@/nbd/*.cm*
+@OCamlStdlibDir@/nbd/*.ml*

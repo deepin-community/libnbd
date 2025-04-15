@@ -1,0 +1,90 @@
+=head1 NAME
+
+nbd_get_uri - construct an NBD URI for a connection
+
+=head1 SYNOPSIS
+
+ #include <libnbd.h>
+
+ char * nbd_get_uri (
+          struct nbd_handle *h
+        );
+
+=head1 DESCRIPTION
+
+This makes a best effort attempt to construct an NBD URI which
+could be used to connect back to the same server (using
+L<nbd_connect_uri(3)>).
+
+In some cases there is not enough information in the handle
+to successfully create a URI (eg. if you connected with
+L<nbd_connect_socket(3)>).  In such cases the call returns
+C<NULL> and further diagnostic information is available
+via L<nbd_get_errno(3)> and L<nbd_get_error(3)> as usual.
+
+Even if a URI is returned it is not guaranteed to work, and
+it may not be optimal.
+
+L<nbdinfo(1)> I<--uri> option is a way to access this API
+from shell scripts.
+
+=head1 RETURN VALUE
+
+This call returns a string.  The caller must free the
+returned string to avoid a memory leak.
+
+=head1 ERRORS
+
+On error C<NULL> is returned.
+
+Refer to L<libnbd(3)/ERROR HANDLING>
+for how to get further details of the error.
+
+The following parameters must not be NULL: C<h>.
+For more information see L<libnbd(3)/Non-NULL parameters>.
+
+=head1 HANDLE STATE
+
+nbd_get_uri
+can be called when the handle is in the following states:
+
+ ┌─────────────────────────────────────┬─────────────────────────┐
+ │ Handle created, before connecting   │ ❌ error                │
+ │ Connecting                          │ ✅ allowed              │
+ │ Connecting & handshaking (opt_mode) │ ✅ allowed              │
+ │ Connected to the server             │ ✅ allowed              │
+ │ Connection shut down                │ ✅ allowed              │
+ │ Handle dead                         │ ✅ allowed              │
+ └─────────────────────────────────────┴─────────────────────────┘
+
+=head1 VERSION
+
+This function first appeared in libnbd 1.8.
+
+If you need to test if this function is available at compile time
+check if the following macro is defined:
+
+ #define LIBNBD_HAVE_NBD_GET_URI 1
+
+=head1 SEE ALSO
+
+L<nbd_aio_connect_uri(3)>,
+L<nbd_connect_socket(3)>,
+L<nbd_connect_uri(3)>,
+L<nbd_create(3)>,
+L<nbd_get_errno(3)>,
+L<nbd_get_error(3)>,
+L<nbd_is_uri(3)>,
+L<nbd_supports_uri(3)>,
+L<libnbd(3)>,
+L<nbdinfo(1)>.
+
+=head1 AUTHORS
+
+Eric Blake
+
+Richard W.M. Jones
+
+=head1 COPYRIGHT
+
+Copyright Red Hat

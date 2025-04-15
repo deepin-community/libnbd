@@ -1,0 +1,156 @@
+=head1 NAME
+
+nbd_set_strict_mode - control how strictly to follow NBD protocol
+
+=head1 SYNOPSIS
+
+ #include <libnbd.h>
+
+ int nbd_set_strict_mode (
+       struct nbd_handle *h, uint32_t flags
+     );
+
+=head1 DESCRIPTION
+
+By default, libnbd tries to detect requests that would trigger
+undefined behavior in the NBD protocol, and rejects them client
+side without causing any network traffic, rather than risking
+undefined server behavior.  However, for integration testing, it
+can be handy to relax the strictness of libnbd, to coerce it into
+sending such requests over the network for testing the robustness
+of the server in dealing with such traffic.
+
+The C<flags> argument is a bitmask, including zero or more of the
+following strictness flags:
+
+=over 4
+
+=item C<LIBNBD_STRICT_COMMANDS> = 0x1
+
+If set, this flag rejects client requests that do not comply with the
+set of advertised server flags (for example, attempting a write on
+a read-only server, or attempting to use C<LIBNBD_CMD_FLAG_FUA> when
+L<nbd_can_fua(3)> returned false).  If clear, this flag relies on the
+server to reject unexpected commands.
+
+=item C<LIBNBD_STRICT_FLAGS> = 0x2
+
+If set, this flag rejects client requests that attempt to set a
+command flag not recognized by libnbd (those outside of
+C<LIBNBD_CMD_FLAG_MASK>), or a flag not normally associated with
+a command (such as using C<LIBNBD_CMD_FLAG_FUA> on a read command).
+If clear, all flags are sent on to the server, even if sending such
+a flag may cause the server to change its reply in a manner that
+confuses libnbd, perhaps causing deadlock or ending the connection.
+
+Flags that are known by libnbd as associated with a given command
+(such as C<LIBNBD_CMD_FLAG_DF> for L<nbd_pread_structured(3)> gated
+by L<nbd_can_df(3)>) are controlled by C<LIBNBD_STRICT_COMMANDS>
+instead; and C<LIBNBD_CMD_FLAG_PAYLOAD_LEN> is managed automatically
+by libnbd unless C<LIBNBD_STRICT_AUTO_FLAG> is disabled.
+
+Note that the NBD protocol only supports 16 bits of command flags,
+even though the libnbd API uses C<uint32_t>; bits outside of the
+range permitted by the protocol are always a client-side error.
+
+=item C<LIBNBD_STRICT_BOUNDS> = 0x4
+
+If set, this flag rejects client requests that would exceed the export
+bounds without sending any traffic to the server.  If clear, this flag
+relies on the server to detect out-of-bounds requests.
+
+=item C<LIBNBD_STRICT_ZERO_SIZE> = 0x8
+
+If set, this flag rejects client requests with length 0.  If clear,
+this permits zero-length requests to the server, which may produce
+undefined results.
+
+=item C<LIBNBD_STRICT_ALIGN> = 0x10
+
+If set, and the server provided minimum block sizes (see
+C<LIBNBD_SIZE_MINIMUM> for L<nbd_get_block_size(3)>), this
+flag rejects client requests that do not have length and offset
+aligned to the server's minimum requirements.  If clear,
+unaligned requests are sent to the server, where it is up to
+the server whether to honor or reject the request.
+
+=item C<LIBNBD_STRICT_PAYLOAD> = 0x20
+
+If set, the client refuses to send a command to the server
+with more than libnbd's outgoing payload maximum (see
+C<LIBNBD_SIZE_PAYLOAD> for L<nbd_get_block_size(3)>), whether
+or not the server advertised a block size maximum.  If clear,
+oversize requests up to 64MiB may be attempted, although
+requests larger than 32MiB are liable to cause some servers to
+disconnect.
+
+=item C<LIBNBD_STRICT_AUTO_FLAG> = 0x40
+
+If set, commands that accept the C<LIBNBD_CMD_FLAG_PAYLOAD_LEN>
+flag (such as L<nbd_pwrite(3)> and C<nbd_block_status_filter(3)>)
+ignore the presence or absence of that flag from the caller,
+instead sending the value over the wire that matches the
+server's expectations based on whether extended headers were
+negotiated when the connection was made.  If clear, the caller
+takes on the responsibility for whether the payload length
+flag is set or clear during the affected command, which can
+be useful during integration testing but is more likely to
+lead to undefined behavior.
+
+=back
+
+For convenience, the constant C<LIBNBD_STRICT_MASK> is available to
+describe all strictness flags supported by this build of libnbd.
+Future versions of libnbd may add further flags, which are likely
+to be enabled by default for additional client-side filtering.  As
+such, when attempting to relax only one specific bit while keeping
+remaining checks at the client side, it is wiser to first call
+L<nbd_get_strict_mode(3)> and modify that value, rather than
+blindly setting a constant value.
+
+=head1 RETURN VALUE
+
+If the call is successful the function returns C<0>.
+
+=head1 ERRORS
+
+On error C<-1> is returned.
+
+Refer to L<libnbd(3)/ERROR HANDLING>
+for how to get further details of the error.
+
+The following parameters must not be NULL: C<h>.
+For more information see L<libnbd(3)/Non-NULL parameters>.
+
+=head1 VERSION
+
+This function first appeared in libnbd 1.6.
+
+If you need to test if this function is available at compile time
+check if the following macro is defined:
+
+ #define LIBNBD_HAVE_NBD_SET_STRICT_MODE 1
+
+=head1 SEE ALSO
+
+L<nbd_can_df(3)>,
+L<nbd_can_fua(3)>,
+L<nbd_create(3)>,
+L<nbd_get_block_size(3)>,
+L<nbd_get_strict_mode(3)>,
+L<nbd_pread_structured(3)>,
+L<nbd_pwrite(3)>,
+L<nbd_set_handshake_flags(3)>,
+L<nbd_stats_bytes_received(3)>,
+L<nbd_stats_bytes_sent(3)>,
+L<libnbd(3)>.
+
+=head1 AUTHORS
+
+Eric Blake
+
+Richard W.M. Jones
+
+=head1 COPYRIGHT
+
+Copyright Red Hat

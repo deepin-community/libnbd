@@ -1,0 +1,99 @@
+=head1 NAME
+
+nbd_set_request_meta_context - control whether connect automatically
+requests meta contexts
+
+=head1 SYNOPSIS
+
+ #include <libnbd.h>
+
+ int nbd_set_request_meta_context (
+       struct nbd_handle *h, bool request
+     );
+
+=head1 DESCRIPTION
+
+This function controls whether the act of connecting to an export
+(all C<nbd_connect_*> calls when L<nbd_set_opt_mode(3)> is false,
+or L<nbd_opt_go(3)> and L<nbd_opt_info(3)> when option mode is
+enabled) will also try to issue NBD_OPT_SET_META_CONTEXT when
+the server supports structured replies or extended headers and
+any contexts were registered by L<nbd_add_meta_context(3)>.  The
+default setting is true; however the extra step of negotiating
+meta contexts is not always desirable: performing both info and
+go on the same export works without needing to re-negotiate
+contexts on the second call; integration testing of other servers
+may benefit from manual invocation of L<nbd_opt_set_meta_context(3)>
+at other times in the negotiation sequence; and even when using
+just L<nbd_opt_info(3)>, it can be faster to collect the server's
+results by relying on the callback function passed to
+L<nbd_opt_list_meta_context(3)> than a series of post-process
+calls to L<nbd_can_meta_context(3)>.
+
+Note that this control has no effect if the server does not
+negotiate structured replies or extended headers, or if the
+client did not request any contexts via L<nbd_add_meta_context(3)>.
+Setting this control to false may cause L<nbd_block_status(3)>
+to fail.
+
+=head1 RETURN VALUE
+
+If the call is successful the function returns C<0>.
+
+=head1 ERRORS
+
+On error C<-1> is returned.
+
+Refer to L<libnbd(3)/ERROR HANDLING>
+for how to get further details of the error.
+
+The following parameters must not be NULL: C<h>.
+For more information see L<libnbd(3)/Non-NULL parameters>.
+
+=head1 HANDLE STATE
+
+nbd_set_request_meta_context
+can be called when the handle is in the following states:
+
+ ┌─────────────────────────────────────┬─────────────────────────┐
+ │ Handle created, before connecting   │ ✅ allowed              │
+ │ Connecting                          │ ❌ error                │
+ │ Connecting & handshaking (opt_mode) │ ✅ allowed              │
+ │ Connected to the server             │ ❌ error                │
+ │ Connection shut down                │ ❌ error                │
+ │ Handle dead                         │ ❌ error                │
+ └─────────────────────────────────────┴─────────────────────────┘
+
+=head1 VERSION
+
+This function first appeared in libnbd 1.16.
+
+If you need to test if this function is available at compile time
+check if the following macro is defined:
+
+ #define LIBNBD_HAVE_NBD_SET_REQUEST_META_CONTEXT 1
+
+=head1 SEE ALSO
+
+L<nbd_add_meta_context(3)>,
+L<nbd_block_status(3)>,
+L<nbd_can_meta_context(3)>,
+L<nbd_create(3)>,
+L<nbd_get_request_meta_context(3)>,
+L<nbd_get_structured_replies_negotiated(3)>,
+L<nbd_opt_go(3)>,
+L<nbd_opt_info(3)>,
+L<nbd_opt_list_meta_context(3)>,
+L<nbd_opt_set_meta_context(3)>,
+L<nbd_set_opt_mode(3)>,
+L<libnbd(3)>.
+
+=head1 AUTHORS
+
+Eric Blake
+
+Richard W.M. Jones
+
+=head1 COPYRIGHT
+
+Copyright Red Hat

@@ -1,0 +1,58 @@
+=head1 NAME
+
+nbd_poll2 - poll the handle once, with fd
+
+=head1 SYNOPSIS
+
+ #include <libnbd.h>
+
+ int nbd_poll2 (
+       struct nbd_handle *h, int fd, int timeout
+     );
+
+=head1 DESCRIPTION
+
+This is the same as L<nbd_poll(3)>, but an additional
+file descriptor parameter is passed.  The additional
+fd is also polled (using C<POLLIN>).  One use for this is to
+wait for an L<eventfd(2)>.
+
+=head1 RETURN VALUE
+
+This call returns an integer E<ge> C<0>.
+
+=head1 ERRORS
+
+On error C<-1> is returned.
+
+Refer to L<libnbd(3)/ERROR HANDLING>
+for how to get further details of the error.
+
+The following parameters must not be NULL: C<h>.
+For more information see L<libnbd(3)/Non-NULL parameters>.
+
+=head1 VERSION
+
+This function first appeared in libnbd 1.16.
+
+If you need to test if this function is available at compile time
+check if the following macro is defined:
+
+ #define LIBNBD_HAVE_NBD_POLL2 1
+
+=head1 SEE ALSO
+
+L<nbd_create(3)>,
+L<nbd_poll(3)>,
+L<libnbd(3)>,
+L<eventfd(2)>.
+
+=head1 AUTHORS
+
+Eric Blake
+
+Richard W.M. Jones
+
+=head1 COPYRIGHT
+
+Copyright Red Hat

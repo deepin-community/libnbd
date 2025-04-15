@@ -1,0 +1,77 @@
+=head1 NAME
+
+nbd_set_tls_verify_peer - set whether we verify the identity of the
+server
+
+=head1 SYNOPSIS
+
+ #include <libnbd.h>
+
+ int nbd_set_tls_verify_peer (
+       struct nbd_handle *h, bool verify
+     );
+
+=head1 DESCRIPTION
+
+Set this flag to control whether libnbd will verify the identity
+of the server from the server's certificate and the certificate
+authority.  This defaults to true when connecting to TCP servers
+using TLS certificate authentication, and false otherwise.
+
+This function may be called regardless of whether TLS is
+supported, but will have no effect unless L<nbd_set_tls(3)>
+is also used to request or require TLS.
+
+=head1 RETURN VALUE
+
+If the call is successful the function returns C<0>.
+
+=head1 ERRORS
+
+On error C<-1> is returned.
+
+Refer to L<libnbd(3)/ERROR HANDLING>
+for how to get further details of the error.
+
+The following parameters must not be NULL: C<h>.
+For more information see L<libnbd(3)/Non-NULL parameters>.
+
+=head1 HANDLE STATE
+
+nbd_set_tls_verify_peer
+can be called when the handle is in the following state:
+
+ ┌─────────────────────────────────────┬─────────────────────────┐
+ │ Handle created, before connecting   │ ✅ allowed              │
+ │ Connecting                          │ ❌ error                │
+ │ Connecting & handshaking (opt_mode) │ ❌ error                │
+ │ Connected to the server             │ ❌ error                │
+ │ Connection shut down                │ ❌ error                │
+ │ Handle dead                         │ ❌ error                │
+ └─────────────────────────────────────┴─────────────────────────┘
+
+=head1 VERSION
+
+This function first appeared in libnbd 1.0.
+
+If you need to test if this function is available at compile time
+check if the following macro is defined:
+
+ #define LIBNBD_HAVE_NBD_SET_TLS_VERIFY_PEER 1
+
+=head1 SEE ALSO
+
+L<nbd_create(3)>,
+L<nbd_get_tls_verify_peer(3)>,
+L<nbd_set_tls(3)>,
+L<libnbd(3)>.
+
+=head1 AUTHORS
+
+Eric Blake
+
+Richard W.M. Jones
+
+=head1 COPYRIGHT
+
+Copyright Red Hat
