@@ -1,3 +1,9 @@
+libnbd (1.22.0-1deepin1) unstable; urgency=medium
+
+  * Remove ndbkit deps.
+
+ -- xiangzelong <xiangzelong@deepin.org>  Tue, 15 Apr 2025 10:28:51 +0800
+
 libnbd (1.22.0-1) unstable; urgency=medium
 
   * New upstream version 1.22.0
